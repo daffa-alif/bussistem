@@ -1,0 +1,54 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Pemesanan;
+use App\Models\DetailPemesanan;
+use Illuminate\Http\Request;
+
+class BayarController extends Controller
+{
+    
+    // Display the payment page (bayar.index)
+    public function index($id_pemesanan)
+{
+    // Find the Pemesanan by id_pemesanan and load related detail_pemesanans
+    $pemesanan = Pemesanan::with(['detail_pemesanans', 'jadwal', 'user'])->findOrFail($id_pemesanan);
+
+    // Calculate the total price by summing the 'harga_kursi' from detail_pemesanans
+    $hargaTotal = $pemesanan->detail_pemesanans->sum('harga_kursi');
+
+    // Pass the data to the view
+    return view('bayar.index', compact('pemesanan', 'hargaTotal'));
+}
+
+
+
+    
+
+    // Confirm the payment and update the Pemesanan status to "confirmed"
+    public function confirm(Request $request, $id_pemesanan)
+    {
+        $pemesanan = Pemesanan::findOrFail($id_pemesanan);
+
+        $request->validate([
+            'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        if ($request->hasFile('bukti_pembayaran')) {
+            $file = $request->file('bukti_pembayaran');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('bukti_pembayaran', $fileName, 'public');
+
+            BuktiPembayaran::create([
+                'id_pemesanan' => $pemesanan->id,
+                'file_name' => $filePath,
+            ]);
+        }
+
+        $pemesanan->status = 'booking';
+        $pemesanan->save();
+
+        return redirect()->route('pemesanan.index')->with('status', 'Pemesanan has been confirmed.');
+    }
+}

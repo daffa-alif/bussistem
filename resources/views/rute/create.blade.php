@@ -1,0 +1,36 @@
+@extends('layouts.app')
+@if (auth()->user()->role === 'admin') 
+@section('title', 'Add Rute')
+
+@section('content')
+    <div class="bg-white p-6 rounded shadow">
+        <h2 class="text-2xl font-bold mb-4">Add Rute</h2>
+        <form action="{{ route('rute.store') }}" method="POST">
+            @csrf
+            <div class="mb-4">
+                <label for="asal" class="block text-gray-700 font-bold mb-2">Asal:</label>
+                <input type="text" name="asal" id="asal" class="w-full border rounded p-2" value="{{ old('asal') }}">
+                @error('asal')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            <div class="mb-4">
+                <label for="tujuan" class="block text-gray-700 font-bold mb-2">Tujuan:</label>
+                <input type="text" name="tujuan" id="tujuan" class="w-full border rounded p-2" value="{{ old('tujuan') }}">
+                @error('tujuan')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            <div class="mb-4">
+                <label for="jarak_km" class="block text-gray-700 font-bold mb-2">Jarak (km):</label>
+                <input type="number" step="0.01" name="jarak_km" id="jarak_km" class="w-full border rounded p-2" value="{{ old('jarak_km') }}">
+                @error('jarak_km')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">Save</button>
+        </form>
+    </div>
+@endsection
+
+    @endif
